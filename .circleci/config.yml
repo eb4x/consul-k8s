@@ -278,8 +278,6 @@ jobs:
       - store_artifacts:
           path: ./control-plane/cni/pkg/bin
 
-
-
   # upload dev docker image
   dev-upload-docker:
     executor: go
