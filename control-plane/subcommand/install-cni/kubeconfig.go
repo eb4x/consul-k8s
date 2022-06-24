@@ -21,6 +21,8 @@ type KubeConfigFields struct {
 	ServiceAccountToken       string
 }
 
+// createKubeConfig creates the kubeconfig file that the consul-cni plugin will use to communicate with the
+// kubernetes API.
 func createKubeConfig(mountedPath, kubeconfigFile string, logger hclog.Logger) error {
 
 	var kubecfg *rest.Config
@@ -35,11 +37,13 @@ func createKubeConfig(mountedPath, kubeconfigFile string, logger hclog.Logger) e
 		return err
 	}
 
+	// Get the host, port and protocol used to talk to the kube API
 	kubeFields, err := getKubernetesFields(kubecfg.CAData, logger)
 	if err != nil {
 		return err
 	}
 
+	// Write out the kubeconfig file
 	destFile := filepath.Join(mountedPath, kubeconfigFile)
 	err = writeKubeConfig(kubeFields, destFile, logger)
 	if err != nil {
@@ -50,6 +54,7 @@ func createKubeConfig(mountedPath, kubeconfigFile string, logger hclog.Logger) e
 	return nil
 }
 
+// getKubernetesFields gets the needed fields from the in cluster config
 func getKubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields, error) {
 
 	var protocol = "https"
@@ -73,6 +78,7 @@ func getKubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields,
 	if err != nil {
 		return nil, err
 	}
+
 	logger.Debug("getKubernetesFields: got fields", "protocol", protocol, "kubernetes host", serviceHost, "kubernetes port", servicePort)
 	return &KubeConfigFields{
 		KubernetesServiceProtocol: protocol,
@@ -83,7 +89,9 @@ func getKubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields,
 	}, nil
 }
 
+// getServiceAccountToken gets the service token from a directory on the host
 func getServiceAccountToken() (string, error) {
+	// serviceAccounttoken = /var/run/secrets/kubernetes.io/serviceaccount/token
 	token, err := ioutil.ReadFile(serviceAccountToken)
 	if err != nil {
 		return "", fmt.Errorf("could not read service account token: %v", err)
@@ -92,6 +100,7 @@ func getServiceAccountToken() (string, error) {
 
 }
 
+// writeKubeConfig writes out the kubeconfig file using a template
 func writeKubeConfig(fields *KubeConfigFields, destFile string, logger hclog.Logger) error {
 
 	tmpl, err := template.New("kubeconfig").Parse(kubeconfigTmpl)

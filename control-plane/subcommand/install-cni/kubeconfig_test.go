@@ -31,7 +31,7 @@ func TestWriteKubeConfig(t *testing.T) {
 		},
 	}
 
-	// set context so that the command will timeout
+	// TODO: set context so that the command will timeout
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
