@@ -54,7 +54,7 @@ func createKubeConfig(mountedPath, kubeconfigFile string, logger hclog.Logger) e
 	return nil
 }
 
-// KubernetesFields gets the needed fields from the in cluster config
+// KubernetesFields gets the needed fields from the in cluster config.
 func KubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields, error) {
 
 	var protocol = "https"
@@ -89,7 +89,7 @@ func KubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields, er
 	}, nil
 }
 
-// ServiceAccountToken gets the service token from a directory on the host
+// ServiceAccountToken gets the service token from a directory on the host.
 func ServiceAccountToken() (string, error) {
 	// serviceAccounttoken = /var/run/secrets/kubernetes.io/serviceaccount/token
 	token, err := ioutil.ReadFile(serviceAccountToken)
@@ -100,7 +100,7 @@ func ServiceAccountToken() (string, error) {
 
 }
 
-// writeKubeConfig writes out the kubeconfig file using a template
+// writeKubeConfig writes out the kubeconfig file using a template.
 func writeKubeConfig(fields *KubeConfigFields, destFile string, logger hclog.Logger) error {
 
 	tmpl, err := template.New("kubeconfig").Parse(kubeconfigTmpl)

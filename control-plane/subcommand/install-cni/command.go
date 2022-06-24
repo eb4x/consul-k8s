@@ -314,7 +314,7 @@ func defaultCNINetwork(confDir string, logger hclog.Logger) (string, error) {
 	return "", fmt.Errorf("no valid networks found in %s", confDir)
 }
 
-// destConfigFile determines the name of the destination config file. The name depends on if the source is a .conf file or .conflist
+// destConfigFile determines the name of the destination config file. The name depends on if the source is a .conf file or .conflist.
 func destConfigFile(srcFile string, logger hclog.Logger) (string, error) {
 	// TODO: There should be more checks here and the file name can change depending on the main
 	// source file. The name will change from .conf to .conflist
@@ -323,7 +323,7 @@ func destConfigFile(srcFile string, logger hclog.Logger) (string, error) {
 	return destFile, nil
 }
 
-// copyCNIBinary copies the cni plugin from inside the installer container to the host
+// copyCNIBinary copies the cni plugin from inside the installer container to the host.
 func copyCNIBinary(srcDir, destDir string, logger hclog.Logger) error {
 	var filename = "consul-cni"
 
