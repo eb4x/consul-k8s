@@ -128,14 +128,14 @@ func (c *Command) Run(args []string) int {
 	}
 
 	// Get the config file that is on the host
-	srcFileName, err := getDefaultCNINetwork(install.MountedCNINetDir, c.logger)
+	srcFileName, err := defaultCNINetwork(install.MountedCNINetDir, c.logger)
 	if err != nil {
 		c.logger.Error("Unable get default config file", "error", err)
 		return 1
 	}
 
 	// Get the dest file we will write to (the name can change)
-	destFileName, err := getDestFile(srcFileName, c.logger)
+	destFileName, err := destConfigFile(srcFileName, c.logger)
 	if err != nil {
 		c.logger.Error("Unable get destination config file", "error", err)
 		return 1
@@ -265,7 +265,7 @@ func appendCNIConfig(cfg *config.CNIConfig, srcFile, destFile string, logger hcl
 
 // Get the correct config file
 // Adapted from kubelet: https://github.com/kubernetes/kubernetes/blob/954996e231074dc7429f7be1256a579bedd8344c/pkg/kubelet/dockershim/network/cni/cni.go#L134
-func getDefaultCNINetwork(confDir string, logger hclog.Logger) (string, error) {
+func defaultCNINetwork(confDir string, logger hclog.Logger) (string, error) {
 	files, err := libcni.ConfFiles(confDir, []string{".conf", ".conflist", ".json"})
 	switch {
 	case err != nil:
@@ -314,12 +314,16 @@ func getDefaultCNINetwork(confDir string, logger hclog.Logger) (string, error) {
 	return "", fmt.Errorf("no valid networks found in %s", confDir)
 }
 
-func getDestFile(srcFile string, logger hclog.Logger) (string, error) {
+// destConfigFile determines the name of the destination config file. The name depends on if the source is a .conf file or .conflist
+func destConfigFile(srcFile string, logger hclog.Logger) (string, error) {
+	// TODO: There should be more checks here and the file name can change depending on the main
+	// source file. The name will change from .conf to .conflist
 	destFile := srcFile
 	logger.Info("CNI configuration destination file", "name", destFile)
 	return destFile, nil
 }
 
+// copyCNIBinary copies the cni plugin from inside the installer container to the host
 func copyCNIBinary(srcDir, destDir string, logger hclog.Logger) error {
 	var filename = "consul-cni"
 

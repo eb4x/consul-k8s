@@ -38,7 +38,7 @@ func createKubeConfig(mountedPath, kubeconfigFile string, logger hclog.Logger) e
 	}
 
 	// Get the host, port and protocol used to talk to the kube API
-	kubeFields, err := getKubernetesFields(kubecfg.CAData, logger)
+	kubeFields, err := KubernetesFields(kubecfg.CAData, logger)
 	if err != nil {
 		return err
 	}
@@ -54,8 +54,8 @@ func createKubeConfig(mountedPath, kubeconfigFile string, logger hclog.Logger) e
 	return nil
 }
 
-// getKubernetesFields gets the needed fields from the in cluster config
-func getKubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields, error) {
+// KubernetesFields gets the needed fields from the in cluster config
+func KubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields, error) {
 
 	var protocol = "https"
 	if val, ok := os.LookupEnv("KUBERNETES_SERVICE_PROTOCOL"); ok {
@@ -74,12 +74,12 @@ func getKubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields,
 
 	ca := "certificate-authority-data: " + base64.StdEncoding.EncodeToString(caData)
 
-	serviceToken, err := getServiceAccountToken()
+	serviceToken, err := ServiceAccountToken()
 	if err != nil {
 		return nil, err
 	}
 
-	logger.Debug("getKubernetesFields: got fields", "protocol", protocol, "kubernetes host", serviceHost, "kubernetes port", servicePort)
+	logger.Debug("KubernetesFields: got fields", "protocol", protocol, "kubernetes host", serviceHost, "kubernetes port", servicePort)
 	return &KubeConfigFields{
 		KubernetesServiceProtocol: protocol,
 		KubernetesServiceHost:     serviceHost,
@@ -89,8 +89,8 @@ func getKubernetesFields(caData []byte, logger hclog.Logger) (*KubeConfigFields,
 	}, nil
 }
 
-// getServiceAccountToken gets the service token from a directory on the host
-func getServiceAccountToken() (string, error) {
+// ServiceAccountToken gets the service token from a directory on the host
+func ServiceAccountToken() (string, error) {
 	// serviceAccounttoken = /var/run/secrets/kubernetes.io/serviceaccount/token
 	token, err := ioutil.ReadFile(serviceAccountToken)
 	if err != nil {
